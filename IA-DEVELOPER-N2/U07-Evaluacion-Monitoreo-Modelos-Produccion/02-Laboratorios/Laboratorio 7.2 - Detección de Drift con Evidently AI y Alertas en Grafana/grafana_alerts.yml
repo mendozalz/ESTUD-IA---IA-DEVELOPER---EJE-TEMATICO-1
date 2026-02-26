@@ -1,0 +1,128 @@
+apiVersion: 1
+
+groups:
+  - name: model_drift_alerts
+    rules:
+      - alert: HighDatasetDrift
+        expr: dataset_drift_score > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          service: demand-prediction
+        annotations:
+          summary: "High dataset drift detected in demand prediction model"
+          description: "The dataset drift score is {{ $value | printf \"%.3f\" }}, which is above the threshold of 0.2. Consider retraining the model."
+          runbook_url: "https://docs.company.com/runbooks/model-drift"
+
+      - alert: CriticalDatasetDrift
+        expr: dataset_drift_score > 0.3
+        for: 2m
+        labels:
+          severity: critical
+          service: demand-prediction
+        annotations:
+          summary: "Critical dataset drift detected - Immediate action required"
+          description: "The dataset drift score is {{ $value | printf \"%.3f\" }}, which is critically high. Immediate retraining is required."
+          runbook_url: "https://docs.company.com/runbooks/model-drift"
+
+      - alert: HighColumnDrift_Price
+        expr: column_drift_score{column="price"} > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          service: demand-prediction
+          column: price
+        annotations:
+          summary: "High drift detected in price column"
+          description: "The drift score for price column is {{ $value | printf \"%.3f\" }}, which is above the threshold of 0.3."
+          runbook_url: "https://docs.company.com/runbooks/column-drift"
+
+      - alert: HighColumnDrift_Demand
+        expr: column_drift_score{column="demand"} > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          service: demand-prediction
+          column: demand
+        annotations:
+          summary: "High drift detected in demand column"
+          description: "The drift score for demand column is {{ $value | printf \"%.3f\" }}, which is above the threshold of 0.3."
+          runbook_url: "https://docs.company.com/runbooks/column-drift"
+
+      - alert: HighColumnDrift_CompetitorPrice
+        expr: column_drift_score{column="competitor_price"} > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          service: demand-prediction
+          column: competitor_price
+        annotations:
+          summary: "High drift detected in competitor_price column"
+          description: "The drift score for competitor_price column is {{ $value | printf \"%.3f\" }}, which is above the threshold of 0.3."
+          runbook_url: "https://docs.company.com/runbooks/column-drift"
+
+      - alert: ModelPredictionLatencyHigh
+        expr: histogram_quantile(0.95, sum(rate(demand_prediction_latency_seconds_bucket[5m])) by (le)) > 1.0
+        for: 10m
+        labels:
+          severity: warning
+          service: demand-prediction
+        annotations:
+          summary: "High prediction latency detected"
+          description: "The 95th percentile latency is {{ $value | printf \"%.3f\" }} seconds, which is above the threshold of 1.0 second."
+          runbook_url: "https://docs.company.com/runbooks/latency"
+
+      - alert: ModelPredictionLatencyCritical
+        expr: histogram_quantile(0.95, sum(rate(demand_prediction_latency_seconds_bucket[5m])) by (le)) > 2.0
+        for: 5m
+        labels:
+          severity: critical
+          service: demand-prediction
+        annotations:
+          summary: "Critical prediction latency detected"
+          description: "The 95th percentile latency is {{ $value | printf \"%.3f\" }} seconds, which is critically high."
+          runbook_url: "https://docs.company.com/runbooks/latency"
+
+      - alert: ModelErrorRateHigh
+        expr: rate(demand_prediction_requests_total{status="error"}[5m]) / rate(demand_prediction_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: demand-prediction
+        annotations:
+          summary: "High error rate detected"
+          description: "The error rate is {{ $value | printf \"%.3f\" }}, which is above the threshold of 5%."
+          runbook_url: "https://docs.company.com/runbooks/error-rate"
+
+      - alert: ModelErrorRateCritical
+        expr: rate(demand_prediction_requests_total{status="error"}[5m]) / rate(demand_prediction_requests_total[5m]) > 0.10
+        for: 2m
+        labels:
+          severity: critical
+          service: demand-prediction
+        annotations:
+          summary: "Critical error rate detected"
+          description: "The error rate is {{ $value | printf \"%.3f\" }}, which is critically high."
+          runbook_url: "https://docs.company.com/runbooks/error-rate"
+
+      - alert: ModelLowRequestRate
+        expr: rate(demand_prediction_requests_total[5m]) < 0.1
+        for: 15m
+        labels:
+          severity: warning
+          service: demand-prediction
+        annotations:
+          summary: "Low request rate detected"
+          description: "The request rate is {{ $value | printf \"%.3f\" }} requests per second, which is below the threshold of 0.1."
+          runbook_url: "https://docs.company.com/runbooks/low-traffic"
+
+      - alert: ModelAccuracyLow
+        expr: demand_model_accuracy < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          service: demand-prediction
+        annotations:
+          summary: "Low model accuracy detected"
+          description: "The model accuracy is {{ $value | printf \"%.3f\" }}, which is below the threshold of 0.8."
+          runbook_url: "https://docs.company.com/runbooks/accuracy"

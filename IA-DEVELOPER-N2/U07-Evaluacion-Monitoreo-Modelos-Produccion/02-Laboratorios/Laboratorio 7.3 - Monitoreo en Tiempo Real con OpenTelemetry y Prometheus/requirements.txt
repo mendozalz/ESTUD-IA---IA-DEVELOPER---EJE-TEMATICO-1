@@ -1,0 +1,16 @@
+opentelemetry-sdk==1.20.0
+opentelemetry-exporter-prometheus==1.20.0
+opentelemetry-instrumentation-fastapi==0.41b0
+opentelemetry-instrumentation-requests==0.42b0
+prometheus-client==0.17.1
+fastapi==0.103.0
+uvicorn==0.24.0
+tensorflow==2.15.0
+pillow==10.0.0
+numpy==1.24.0
+requests==2.31.0
+jupyter==1.0.0
+matplotlib==3.8.0
+seaborn==0.12.0
+plotly==5.17.0
+docker==6.1.0

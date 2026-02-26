@@ -1,0 +1,523 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: marketing-personalization-
+  annotations:
+    workflows.argoproj.io/description: "Marketing personalization pipeline using Argo Workflows and InfluxDB"
+    workflows.argoproj.io/version: "3.4.0"
+spec:
+  entrypoint: main
+  serviceAccountName: argo-workflow-sa
+  volumes:
+  - name: shared-data
+    persistentVolumeClaim:
+      claimName: marketing-data-pvc
+  
+  templates:
+  - name: main
+    steps:
+    - - name: extract-user-data
+        template: extract-user-interactions
+        arguments:
+          parameters:
+          - name: data-source
+            value: "gs://marketing-data/user_interactions.csv"
+    
+    - - name: preprocess-data
+        template: preprocess-user-data
+        arguments:
+          artifacts:
+          - name: raw-data
+            from: "{{steps.extract-user-data.outputs.artifacts.extracted-data}}"
+    
+    - - name: train-recommendation-model
+        template: train-model
+        arguments:
+          artifacts:
+          - name: processed-data
+            from: "{{steps.preprocess-data.outputs.artifacts.processed-data}}"
+          parameters:
+          - name: model-type
+            value: "collaborative-filtering"
+    
+    - - name: validate-model
+        template: validate-model
+        arguments:
+          artifacts:
+          - name: model
+            from: "{{steps.train-recommendation-model.outputs.artifacts.trained-model}}"
+          - name: test-data
+            from: "{{steps.preprocess-data.outputs.artifacts.test-data}}"
+    
+    - - name: deploy-to-production
+        template: deploy-model
+        arguments:
+          artifacts:
+          - name: model
+            from: "{{steps.train-recommendation-model.outputs.artifacts.trained-model}}"
+        when: "{{steps.validate-model.outputs.parameters.validation-passed}} == true"
+    
+    - - name: setup-influxdb
+        template: setup-influxdb
+        arguments:
+          parameters:
+          - name: bucket-name
+            value: "marketing_metrics"
+
+  - name: extract-user-interactions
+    inputs:
+      parameters:
+      - name: data-source
+    container:
+      image: python:3.9-slim
+      command: [python]
+      args:
+      - -c
+      - |
+        import pandas as pd
+        import requests
+        from datetime import datetime
+        import os
+        
+        print(f"Extracting user interactions from {{inputs.parameters.data-source}}")
+        
+        # Simulate data extraction (in production, this would connect to actual data sources)
+        data = {
+            'user_id': [f'user_{i}' for i in range(1000)],
+            'product_id': [f'prod_{i%50}' for i in range(1000)],
+            'interaction_type': ['click', 'view', 'purchase', 'like'] * 250,
+            'timestamp': pd.date_range('2024-01-01', periods=1000, freq='H'),
+            'session_duration': [300 + i*10 for i in range(1000)],
+            'conversion_value': [0, 0, 50, 10] * 250
+        }
+        
+        df = pd.DataFrame(data)
+        df.to_csv('/tmp/user_interactions.csv', index=False)
+        print(f"Extracted {len(df)} user interactions")
+    
+    outputs:
+      artifacts:
+      - name: extracted-data
+        path: /tmp/user_interactions.csv
+
+  - name: preprocess-user-data
+    inputs:
+      artifacts:
+      - name: raw-data
+        path: /tmp/raw_data.csv
+    container:
+      image: python:3.9-slim
+      command: [python]
+      args:
+      - -c
+      - |
+        import pandas as pd
+        import numpy as np
+        from sklearn.preprocessing import LabelEncoder, StandardScaler
+        from sklearn.model_selection import train_test_split
+        
+        print("Preprocessing user interaction data...")
+        
+        # Load data
+        df = pd.read_csv('/tmp/raw_data.csv')
+        print(f"Loaded {len(df)} interactions")
+        
+        # Feature engineering
+        df['hour'] = pd.to_datetime(df['timestamp']).dt.hour
+        df['day_of_week'] = pd.to_datetime(df['timestamp']).dt.dayofweek
+        df['is_weekend'] = df['day_of_week'].isin([5, 6]).astype(int)
+        
+        # Encode categorical variables
+        le_user = LabelEncoder()
+        le_product = LabelEncoder()
+        le_interaction = LabelEncoder()
+        
+        df['user_id_encoded'] = le_user.fit_transform(df['user_id'])
+        df['product_id_encoded'] = le_product.fit_transform(df['product_id'])
+        df['interaction_type_encoded'] = le_interaction.fit_transform(df['interaction_type'])
+        
+        # Normalize numerical features
+        scaler = StandardScaler()
+        df['session_duration_norm'] = scaler.fit_transform(df[['session_duration']])
+        df['conversion_value_norm'] = scaler.fit_transform(df[['conversion_value']])
+        
+        # Create user-item interaction matrix
+        user_item_matrix = df.pivot_table(
+            index='user_id',
+            columns='product_id',
+            values='conversion_value',
+            fill_value=0
+        )
+        
+        # Split data
+        train_data, test_data = train_test_split(
+            df, test_size=0.2, random_state=42, stratify=df['user_id']
+        )
+        
+        # Save processed data
+        train_data.to_csv('/tmp/train_data.csv', index=False)
+        test_data.to_csv('/tmp/test_data.csv', index=False)
+        user_item_matrix.to_csv('/tmp/user_item_matrix.csv')
+        
+        # Save encoders
+        import pickle
+        with open('/tmp/label_encoders.pkl', 'wb') as f:
+            pickle.dump({
+                'user_encoder': le_user,
+                'product_encoder': le_product,
+                'interaction_encoder': le_interaction
+            }, f)
+        
+        print("Preprocessing completed successfully")
+    
+    outputs:
+      artifacts:
+      - name: processed-data
+        path: /tmp/train_data.csv
+      - name: test-data
+        path: /tmp/test_data.csv
+      - name: user-item-matrix
+        path: /tmp/user_item_matrix.csv
+      - name: encoders
+        path: /tmp/label_encoders.pkl
+
+  - name: train-model
+    inputs:
+      parameters:
+      - name: model-type
+      artifacts:
+      - name: processed-data
+        path: /tmp/processed_data.csv
+      - name: user-item-matrix
+        path: /tmp/user_item_matrix.csv
+      - name: encoders
+        path: /tmp/label_encoders.pkl
+    container:
+      image: tensorflow/tensorflow:2.15.0
+      command: [python]
+      args:
+      - -c
+      - |
+        import pandas as pd
+        import numpy as np
+        import tensorflow as tf
+        from sklearn.metrics.pairwise import cosine_similarity
+        import pickle
+        
+        print(f"Training {{inputs.parameters.model-type}} recommendation model...")
+        
+        # Load data
+        train_data = pd.read_csv('/tmp/processed_data.csv')
+        user_item_matrix = pd.read_csv('/tmp/user_item_matrix.csv', index_col=0)
+        with open('/tmp/label_encoders.pkl', 'rb') as f:
+            encoders = pickle.load(f)
+        
+        # Collaborative Filtering Model
+        class CollaborativeFilteringModel(tf.keras.Model):
+            def __init__(self, num_users, num_items, embedding_dim=50):
+                super().__init__()
+                self.user_embedding = tf.keras.layers.Embedding(
+                    num_users, embedding_dim, name='user_embedding'
+                )
+                self.item_embedding = tf.keras.layers.Embedding(
+                    num_items, embedding_dim, name='item_embedding'
+                )
+                self.user_bias = tf.keras.layers.Embedding(num_users, 1, name='user_bias')
+                self.item_bias = tf.keras.layers.Embedding(num_items, 1, name='item_bias')
+                self.global_bias = tf.Variable(0.0, name='global_bias')
+                
+            def call(self, inputs):
+                user_ids, item_ids = inputs
+                user_vecs = self.user_embedding(user_ids)
+                item_vecs = self.item_embedding(item_ids)
+                user_biases = self.user_bias(user_ids)
+                item_biases = self.item_bias(item_ids)
+                
+                dot_product = tf.reduce_sum(user_vecs * item_vecs, axis=1)
+                return dot_product + user_biases + item_biases + self.global_bias
+        
+        # Prepare training data
+        num_users = len(encoders['user_encoder'].classes_)
+        num_items = len(encoders['product_encoder'].classes_)
+        
+        user_ids = train_data['user_id_encoded'].values
+        item_ids = train_data['product_id_encoded'].values
+        ratings = train_data['conversion_value_norm'].values
+        
+        # Create and train model
+        model = CollaborativeFilteringModel(num_users, num_items)
+        model.compile(
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
+            loss='mse',
+            metrics=['mae']
+        )
+        
+        print("Training collaborative filtering model...")
+        history = model.fit(
+            [user_ids, item_ids],
+            ratings,
+            epochs=50,
+            batch_size=32,
+            validation_split=0.2,
+            callbacks=[
+                tf.keras.callbacks.EarlyStopping(patience=10, restore_best_weights=True)
+            ],
+            verbose=1
+        )
+        
+        # Save model
+        model.save('/tmp/recommendation_model')
+        print("Model training completed and saved")
+        
+        # Save training history
+        with open('/tmp/training_history.json', 'w') as f:
+            import json
+            json.dump({
+                'final_loss': float(history.history['loss'][-1]),
+                'final_val_loss': float(history.history['val_loss'][-1]),
+                'final_mae': float(history.history['mae'][-1]),
+                'final_val_mae': float(history.history['val_mae'][-1])
+            }, f)
+    
+    outputs:
+      artifacts:
+      - name: trained-model
+        path: /tmp/recommendation_model
+      - name: training-history
+        path: /tmp/training_history.json
+
+  - name: validate-model
+    inputs:
+      artifacts:
+      - name: model
+        path: /tmp/model
+      - name: test-data
+        path: /tmp/test_data.csv
+    container:
+      image: tensorflow/tensorflow:2.15.0
+      command: [python]
+      args:
+      - -c
+      - |
+        import pandas as pd
+        import numpy as np
+        import tensorflow as tf
+        from sklearn.metrics import mean_squared_error, mean_absolute_error
+        import json
+        
+        print("Validating recommendation model...")
+        
+        # Load model and test data
+        model = tf.keras.models.load_model('/tmp/model')
+        test_data = pd.read_csv('/tmp/test_data.csv')
+        
+        # Make predictions
+        user_ids = test_data['user_id_encoded'].values
+        item_ids = test_data['product_id_encoded'].values
+        actual_ratings = test_data['conversion_value_norm'].values
+        
+        predictions = model.predict([user_ids, item_ids])
+        
+        # Calculate metrics
+        mse = mean_squared_error(actual_ratings, predictions)
+        mae = mean_absolute_error(actual_ratings, predictions)
+        rmse = np.sqrt(mse)
+        
+        # Calculate precision@k and recall@k
+        def precision_at_k(predictions, actual, k=10):
+            # Get top k predictions for each user
+            top_k_indices = np.argsort(predictions)[-k:]
+            top_k_actual = actual[top_k_indices]
+            return np.sum(top_k_actual > 0) / k
+        
+        precision_k = precision_at_k(predictions.flatten(), actual_ratings)
+        
+        validation_results = {
+            'mse': float(mse),
+            'mae': float(mae),
+            'rmse': float(rmse),
+            'precision_at_10': float(precision_k),
+            'validation_passed': mse < 0.5 and mae < 0.4
+        }
+        
+        # Save validation results
+        with open('/tmp/validation_results.json', 'w') as f:
+            json.dump(validation_results, f, indent=2)
+        
+        print(f"Validation completed. MSE: {mse:.4f}, MAE: {mae:.4f}")
+        print(f"Validation passed: {validation_results['validation_passed']}")
+    
+    outputs:
+      artifacts:
+      - name: validation-results
+        path: /tmp/validation_results.json
+      parameters:
+      - name: validation-passed
+        valueFrom:
+          path: /tmp/validation_results.json
+          jsonKey: validation_passed
+
+  - name: deploy-model
+    inputs:
+      artifacts:
+      - name: model
+        path: /tmp/model
+    container:
+      image: python:3.9-slim
+      command: [python]
+      args:
+      - -c
+      - |
+        import yaml
+        import os
+        
+        print("Creating Kubernetes deployment for recommendation model...")
+        
+        # Create deployment configuration
+        deployment = {
+            'apiVersion': 'apps/v1',
+            'kind': 'Deployment',
+            'metadata': {
+                'name': 'marketing-recommendation-api',
+                'labels': {
+                    'app': 'marketing-recommendation',
+                    'component': 'api'
+                }
+            },
+            'spec': {
+                'replicas': 3,
+                'selector': {
+                    'matchLabels': {
+                        'app': 'marketing-recommendation'
+                    }
+                },
+                'template': {
+                    'metadata': {
+                        'labels': {
+                            'app': 'marketing-recommendation'
+                        }
+                    },
+                    'spec': {
+                        'containers': [{
+                            'name': 'recommendation-api',
+                            'image': 'marketing-recommendation:latest',
+                            'ports': [{'containerPort': 8080}],
+                            'resources': {
+                                'requests': {
+                                    'cpu': '500m',
+                                    'memory': '1Gi'
+                                },
+                                'limits': {
+                                    'cpu': '1000m',
+                                    'memory': '2Gi'
+                                }
+                            },
+                            'env': [
+                                {'name': 'MODEL_PATH', 'value': '/app/model'},
+                                {'name': 'INFLUXDB_URL', 'value': 'http://influxdb-service:8086'},
+                                {'name': 'INFLUXDB_TOKEN', 'value': 'marketing-token'}
+                            ]
+                        }]
+                    }
+                }
+            }
+        }
+        
+        # Create service configuration
+        service = {
+            'apiVersion': 'v1',
+            'kind': 'Service',
+            'metadata': {
+                'name': 'marketing-recommendation-service'
+            },
+            'spec': {
+                'selector': {
+                    'app': 'marketing-recommendation'
+                },
+                'ports': [{
+                    'port': 80,
+                    'targetPort': 8080,
+                    'protocol': 'TCP'
+                }],
+                'type': 'ClusterIP'
+            }
+        }
+        
+        # Save configurations
+        with open('/tmp/deployment.yaml', 'w') as f:
+            yaml.dump(deployment, f)
+        
+        with open('/tmp/service.yaml', 'w') as f:
+            yaml.dump(service, f)
+        
+        print("Deployment configuration created successfully")
+    
+    outputs:
+      artifacts:
+      - name: deployment-config
+        path: /tmp/deployment.yaml
+      - name: service-config
+        path: /tmp/service.yaml
+
+  - name: setup-influxdb
+    inputs:
+      parameters:
+      - name: bucket-name
+    container:
+      image: python:3.9-slim
+      command: [python]
+      args:
+      - -c
+      - |
+        import yaml
+        from influxdb_client import InfluxDBClient, Point
+        from influxdb_client.client.write_api import SYNCHRONOUS
+        import os
+        
+        print("Setting up InfluxDB for marketing metrics...")
+        
+        # InfluxDB configuration
+        influx_config = {
+            'url': 'http://influxdb-service:8086',
+            'token': 'marketing-token',
+            'org': 'marketing-org',
+            'bucket': '{{inputs.parameters.bucket-name}}'
+        }
+        
+        # Create bucket configuration
+        bucket_config = {
+            'org_id': 'marketing-org',
+            'name': '{{inputs.parameters.bucket-name}}',
+            'retention_rules': [{
+                'type': 'expire',
+                'every_seconds': 63072000  # 2 years
+            }]
+        }
+        
+        # Sample data points for setup
+        sample_points = [
+            Point("user_interactions")\
+                .tag("user_id", "user_123")\
+                .tag("event_type", "click")\
+                .field("value", 1)\
+                .time("2024-01-01T10:00:00Z"),
+            
+            Point("recommendation_metrics")\
+                .tag("model_version", "v1.0")\
+                .tag("user_segment", "premium")\
+                .field("precision", 0.85)\
+                .field("recall", 0.78)\
+                .time("2024-01-01T10:00:00Z")
+        ]
+        
+        # Save configuration
+        config = {
+            'influxdb': influx_config,
+            'bucket': bucket_config,
+            'sample_data': [str(point) for point in sample_points]
+        }
+        
+        with open('/tmp/influxdb_config.yaml', 'w') as f:
+            yaml.dump(config, f)
+        
+        print("InfluxDB configuration created successfully")

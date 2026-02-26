@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendation-api
+  namespace: ml-systems
+  labels:
+    app: recommendation-api
+    version: v1
+    team: ml-team
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: recommendation-api
+  template:
+    metadata:
+      labels:
+        app: recommendation-api
+        version: v1
+    spec:
+      containers:
+      - name: recommendation-api
+        image: recommendation-api:latest
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: MODEL_PATH
+          value: "/app/models/production/recommendation_model"
+        - name: MLFLOW_TRACKING_URI
+          value: "http://mlflow-service.ml-systems.svc.cluster.local:5000"
+        - name: LOG_LEVEL
+          value: "INFO"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: model-storage
+          mountPath: /app/models
+          readOnly: true
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: model-storage-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendation-api
+  namespace: ml-systems
+  labels:
+    app: recommendation-api
+spec:
+  selector:
+    app: recommendation-api
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-storage-pvc
+  namespace: ml-systems
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard

@@ -1,0 +1,69 @@
+# Laboratorio 1 - Pipeline de Datos Automatizado
+# Dependencias para MLOps y automatización de pipelines con TFX y Airflow
+
+# Core ML/AI Libraries
+tensorflow>=2.15.0
+numpy>=1.21.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+
+# TensorFlow Extended (TFX)
+tfx>=1.14.0
+tensorflow-transform>=1.14.0
+tensorflow-data-validation>=1.14.0
+tensorflow-serving-api>=2.15.0
+
+# Apache Beam (para TFX)
+apache-beam>=2.48.0
+
+# Apache Airflow
+apache-airflow>=2.7.0
+apache-airflow-providers-docker>=3.5.0
+apache-airflow-providers-postgres>=5.5.0
+apache-airflow-providers-redis>=3.4.0
+
+# Data Validation
+great-expectations>=0.17.0
+pandera>=0.14.0
+
+# Database
+psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
+
+# Caching and Message Queue
+redis>=4.5.0
+celery>=5.3.0
+
+# Monitoring and Logging
+prometheus-client>=0.16.0
+grafana-api>=1.0.3
+mlflow>=2.6.0
+weights-and-biases>=0.15.0
+
+# Containerization
+docker>=6.1.0
+kubernetes>=26.1.0
+helm>=3.11.0
+
+# Configuration and Utilities
+pyyaml>=6.0
+python-dotenv>=1.0.0
+click>=8.1.0
+jinja2>=3.1.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+
+# Code Quality
+black>=23.7.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# Documentation
+sphinx>=7.1.0
+sphinx-rtd-theme>=1.3.0
+
+# Environment
+python>=3.9.0,<4.0.0

@@ -1,0 +1,33 @@
+# Laboratorio 1 - Ejercicio 1: Carga de Imágenes con tf.data
+# Dependencias para detección de defectos en PCB con TensorFlow
+
+# Core ML/AI Libraries
+tensorflow>=2.8.0
+numpy>=1.21.0
+
+# Computer Vision
+opencv-python>=4.5.0
+Pillow>=8.3.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Data Processing
+pandas>=1.3.0
+
+# Development and Testing
+pytest>=6.2.0
+pytest-cov>=3.0.0
+
+# Code Quality
+black>=22.0.0
+flake8>=4.0.0
+mypy>=0.910
+
+# Documentation
+sphinx>=4.0.0
+sphinx-rtd-theme>=1.0.0
+
+# Environment
+python>=3.8.0,<4.0.0

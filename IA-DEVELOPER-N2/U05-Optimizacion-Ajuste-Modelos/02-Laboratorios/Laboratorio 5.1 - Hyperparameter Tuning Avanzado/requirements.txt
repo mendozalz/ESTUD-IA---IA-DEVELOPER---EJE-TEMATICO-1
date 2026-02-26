@@ -1,0 +1,24 @@
+# Laboratorio 5.1 - Hyperparameter Tuning Avanzado
+# Dependencias principales
+optuna==4.0.0
+wandb==0.15.12
+tensorflow==2.15.0
+tensorflow-datasets==4.9.2
+
+# Procesamiento de datos
+numpy==1.24.3
+pandas==2.1.0
+scikit-learn==1.4.0
+
+# Visualización
+matplotlib==3.8.0
+seaborn==0.13.0
+plotly==5.17.0
+
+# Utilidades
+tqdm==4.66.1
+python-dotenv==1.0.0
+jupyter==1.0.0
+
+# Transformaciones adicionales
+tensorflow-addons==0.21.0

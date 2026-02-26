@@ -1,0 +1,40 @@
+# Laboratorio 1 - Ejercicio 4: Atención Personalizada para Texto
+# Dependencias para análisis de sentimientos con BERT y atención personalizada
+
+# Core ML/AI Libraries
+tensorflow>=2.8.0
+numpy>=1.21.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+
+# Transformers and NLP
+transformers>=4.15.0
+tokenizers>=0.11.0
+
+# Web API
+fastapi>=0.68.0
+uvicorn>=0.15.0
+pydantic>=1.8.0
+
+# HTTP Requests
+requests>=2.26.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Development and Testing
+pytest>=6.2.0
+pytest-cov>=3.0.0
+
+# Code Quality
+black>=22.0.0
+flake8>=4.0.0
+mypy>=0.910
+
+# Documentation
+sphinx>=4.0.0
+sphinx-rtd-theme>=1.0.0
+
+# Environment
+python>=3.8.0,<4.0.0

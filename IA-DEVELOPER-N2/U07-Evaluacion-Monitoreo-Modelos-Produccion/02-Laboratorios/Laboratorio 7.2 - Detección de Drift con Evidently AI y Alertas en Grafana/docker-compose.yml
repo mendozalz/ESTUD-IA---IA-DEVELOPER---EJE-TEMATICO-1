@@ -1,0 +1,232 @@
+version: '3.8'
+
+services:
+  # API de Predicción de Demanda
+  api:
+    build: .
+    container_name: demand_prediction_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./outputs:/app/outputs
+    environment:
+      - PYTHONPATH=/app
+      - PROMETHEUS_MULTIPROC_DIR=/tmp
+      - LOG_LEVEL=INFO
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Prometheus para recolección de métricas
+  prometheus:
+    image: prom/prometheus:v2.40.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Grafana para visualización y alertas
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning
+      - ./configs/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./configs/grafana/alerts:/etc/grafana/alerts
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_ALERTING_ENABLED=true
+      - GF_UNIFIED_ALERTING_ENABLED=true
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Airflow para orquestación de pipelines
+  airflow-webserver:
+    image: apache/airflow:2.7.0
+    container_name: airflow_webserver
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./configs/airflow/dags:/opt/airflow/dags
+      - ./configs/airflow/logs:/opt/airflow/logs
+      - ./configs/airflow/plugins:/opt/airflow/plugins
+      - airflow_data:/opt/airflow
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=your-fernet-key-here-please-change-this
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__WEBSERVER__SECRET_KEY=your-secret-key-here-please-change-this
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=true
+      - AIRFLOW__WEBSERVER__RBAC=false
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Airflow Scheduler
+  airflow-scheduler:
+    image: apache/airflow:2.7.0
+    container_name: airflow_scheduler
+    volumes:
+      - ./configs/airflow/dags:/opt/airflow/dags
+      - ./configs/airflow/logs:/opt/airflow/logs
+      - ./configs/airflow/plugins:/opt/airflow/plugins
+      - airflow_data:/opt/airflow
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=your-fernet-key-here-please-change-this
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=30
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8973/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL para Airflow
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis para Airflow
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Airflow Worker (opcional, para ejecución distribuida)
+  airflow-worker:
+    image: apache/airflow:2.7.0
+    container_name: airflow_worker
+    volumes:
+      - ./configs/airflow/dags:/opt/airflow/dags
+      - ./configs/airflow/logs:/opt/airflow/logs
+      - ./configs/airflow/plugins:/opt/airflow/plugins
+      - airflow_data:/opt/airflow
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=your-fernet-key-here-please-change-this
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+      - AIRFLOW__CELERY__RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8793/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Airflow Init (para inicializar la base de datos)
+  airflow-init:
+    image: apache/airflow:2.7.0
+    container_name: airflow_init
+    volumes:
+      - airflow_data:/opt/airflow
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=your-fernet-key-here-please-change-this
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=false
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+    depends_on:
+      - postgres
+      - redis
+    command: >
+      bash -c "
+        airflow db upgrade &&
+        airflow users create 
+          --username admin 
+          --firstname Admin 
+          --lastname User 
+          --role Admin 
+          --email admin@example.com 
+          --password admin123
+      "
+    restart: "no"
+
+volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  airflow_data:
+    driver: local
+
+networks:
+  default:
+    name: demand_prediction_network
+    driver: bridge

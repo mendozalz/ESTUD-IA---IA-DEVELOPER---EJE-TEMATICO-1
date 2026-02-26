@@ -1,0 +1,25 @@
+# Laboratorio 5.3 - Optimización de Modelos con Pruning y Quantization
+# Dependencias principales
+tensorflow==2.15.0
+tensorflow-model-optimization==0.7.0
+tensorflow-datasets==4.9.2
+onnxruntime==1.16.0
+
+# Computación y análisis
+numpy==1.24.3
+pandas==2.1.0
+scikit-learn==1.4.0
+
+# Visualización
+matplotlib==3.8.0
+seaborn==0.13.0
+plotly==5.17.0
+
+# Benchmarking y profiling
+thop==0.1.1.post2207100037  # Para contar FLOPs (PyTorch)
+psutil==5.9.0
+
+# Utilidades
+tqdm==4.66.1
+python-dotenv==1.0.0
+jupyter==1.0.0

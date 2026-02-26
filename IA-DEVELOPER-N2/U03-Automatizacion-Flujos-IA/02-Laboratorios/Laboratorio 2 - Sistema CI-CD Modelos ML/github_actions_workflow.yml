@@ -1,0 +1,455 @@
+name: ML Model CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      model_version:
+        description: 'Model version to deploy'
+        required: false
+        type: string
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  NAMESPACE: ml-production
+
+jobs:
+  # CI Pipeline Jobs
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality Checks
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 mypy pytest pytest-cov
+        
+    - name: Black formatting check
+      run: black --check .
+      
+    - name: Flake8 linting
+      run: flake8 . --output-file=flake8-report.txt || true
+      
+    - name: MyPy type checking
+      run: mypy . --output-file=mypy-report.txt || true
+      
+    - name: Upload quality reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: quality-reports
+        path: |
+          flake8-report.txt
+          mypy-report.txt
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    name: Unit Tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-mock
+        
+    - name: Run tests with coverage
+      run: |
+        pytest --cov=src --cov-report=xml --cov-report=html --cov-report=term-missing tests/
+        
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: coverage-reports
+        path: |
+          coverage.xml
+          htmlcov/
+          
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  model-training:
+    runs-on: ubuntu-latest
+    name: Model Training
+    needs: [code-quality, unit-tests]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install tensorflow mlflow
+        
+    - name: Train model
+      run: |
+        python train_model.py \
+          --data-path data/ \
+          --model-path models/ \
+          --mlflow-uri ${{ secrets.MLFLOW_URI }}
+          
+    - name: Upload model artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: model-artifacts
+        path: models/
+
+  # CD Pipeline Jobs
+  build-and-push:
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Image
+    needs: model-training
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    needs: build-and-push
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+        
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+        
+    - name: Deploy to staging
+      run: |
+        export KUBECONFIG=kubeconfig
+        sed -i 's|IMAGE_TAG|${{ needs.build-and-push.outputs.image-tag }}|g' k8s/staging-deployment.yaml
+        kubectl apply -f k8s/staging-deployment.yaml -n $NAMESPACE
+        
+    - name: Wait for deployment
+      run: |
+        export KUBECONFIG=kubeconfig
+        kubectl rollout status deployment/ml-model-staging -n $NAMESPACE --timeout=300s
+        
+    - name: Health check
+      run: |
+        sleep 30
+        kubectl get pods -n $NAMESPACE -l app=ml-model-staging
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+        
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_PROD }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+        
+    - name: Deploy to production
+      run: |
+        export KUBECONFIG=kubeconfig
+        sed -i 's|IMAGE_TAG|${{ needs.build-and-push.outputs.image-tag }}|g' k8s/production-deployment.yaml
+        kubectl apply -f k8s/production-deployment.yaml -n $NAMESPACE
+        
+    - name: Wait for deployment
+      run: |
+        export KUBECONFIG=kubeconfig
+        kubectl rollout status deployment/ml-model-production -n $NAMESPACE --timeout=600s
+        
+    - name: Health check
+      run: |
+        sleep 60
+        kubectl get pods -n $NAMESPACE -l app=ml-model-production
+        
+    - name: Run smoke tests
+      run: |
+        export KUBECONFIG=kubeconfig
+        python smoke_tests.py --endpoint=https://ml-model.company.com
+
+  # Monitoring and Validation
+  integration-tests:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest requests
+        
+    - name: Run integration tests
+      run: |
+        python integration_tests.py --endpoint=https://staging.ml-model.company.com
+      env:
+        TEST_ENDPOINT: https://staging.ml-model.company.com
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: integration-test-results
+        path: test-results/
+
+  performance-tests:
+    runs-on: ubuntu-latest
+    name: Performance Tests
+    needs: deploy-production
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install locust
+        
+    - name: Run performance tests
+      run: |
+        locust -f performance_tests.py --host=https://ml-model.company.com --headless -u 100 -r 10 -t 60s --html performance-report.html
+      env:
+        TEST_HOST: https://ml-model.company.com
+        
+    - name: Upload performance report
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-report
+        path: performance-report.html
+
+  # Notifications
+  notify-success:
+    runs-on: ubuntu-latest
+    name: Notify Success
+    needs: [deploy-production, performance-tests]
+    if: success()
+    
+    steps:
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        channel: '#deployments'
+        text: '✅ Model deployed successfully to production!'
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body: |
+          Automated release from CI/CD pipeline
+          
+          ## Changes
+          - Model version: ${{ needs.build-and-push.outputs.image-tag }}
+          - Deployment: Production
+          - Performance: Passed
+          
+          ## Artifacts
+          - Docker Image: ${{ needs.build-and-push.outputs.image-tag }}
+          - Model: Available in registry
+        draft: false
+        prerelease: false
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    name: Notify Failure
+    needs: [deploy-production, performance-tests]
+    if: failure()
+    
+    steps:
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        channel: '#deployments'
+        text: '❌ Model deployment failed!'
+        
+    - name: Create Issue
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `Deployment Failed - ${context.runNumber}`,
+            body: `
+            ## Deployment Failure
+            **Workflow:** ${context.workflow}
+            **Run Number:** ${context.runNumber}
+            **Commit:** ${context.sha}
+            **Failed Job:** ${context.job}
+            
+            Please investigate the failure and fix the issue.
+            `,
+            labels: ['bug', 'deployment', 'urgent']
+          })
+
+# Security Scanning
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    needs: code-quality
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+# Cleanup
+  cleanup:
+    runs-on: ubuntu-latest
+    name: Cleanup Old Artifacts
+    if: always()
+    
+    steps:
+    - name: Delete old artifacts
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const artifacts = await github.rest.actions.listWorkflowRunsArtifacts({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            per_page: 100
+          });
+          
+          const oldArtifacts = artifacts.data.artifacts
+            .filter(artifact => {
+              const createdAt = new Date(artifact.created_at);
+              const daysOld = (Date.now() - createdAt) / (1000 * 60 * 60 * 24);
+              return daysOld > 30; // Delete artifacts older than 30 days
+            });
+            
+          for (const artifact of oldArtifacts) {
+            await github.rest.actions.deleteArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: artifact.id
+            });
+            console.log(`Deleted artifact: ${artifact.name}`);
+          }

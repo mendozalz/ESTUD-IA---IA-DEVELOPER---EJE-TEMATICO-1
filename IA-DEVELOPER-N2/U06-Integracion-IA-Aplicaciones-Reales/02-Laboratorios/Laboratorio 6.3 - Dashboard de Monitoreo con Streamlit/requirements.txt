@@ -1,0 +1,19 @@
+# Laboratorio 6.3 - Dashboard de Monitoreo con Streamlit
+# Dependencias Python
+streamlit==2.0.0
+plotly==5.15.0
+pandas==2.0.3
+numpy==1.24.3
+prometheus-client==0.17.1
+redis==4.5.4
+psycopg2-binary==2.9.7
+sqlalchemy==2.0.19
+apscheduler==3.10.4
+requests==2.31.0
+python-dotenv==1.0.0
+pytest==7.4.0
+pytest-asyncio==0.21.0
+pytest-cov==4.1.0
+black==23.9.0
+isort==5.12.0
+flake8==6.1.0
