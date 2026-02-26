@@ -34,7 +34,7 @@ En la industria electrónica, la detección automática de defectos en Placas de
 
 ### Opción 2: Datos Sintéticos (para desarrollo)
 - **Generación**: Usar OpenCV para simular defectos
-- **Ventajas**: Control total sobre tipos y cantidad de defectos
+- **Ventajas**: Control total sobre tipos y cantidad de defectos.
 
 ## 🛠️ Implementación
 
