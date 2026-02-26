@@ -1,8 +1,8 @@
-# Unidad 8: Proyecto Integrador - Aplicación IA Automatizada
+# Unidad 8: Marco Lógico para Proyectos de IA Automatizada
 
 ## 📋 Descripción General
 
-La Unidad 8 es el proyecto final integrador donde los estudiantes aplicarán todos los conocimientos adquiridos en las unidades anteriores para diseñar, desarrollar, desplegar y presentar una aplicación completa de IA automatizada. Este proyecto representa la culminación del programa y demuestra la capacidad del estudiante para crear soluciones de IA end-to-end.
+La Unidad 8 integra la metodología de marco lógico con el proyecto final integrador. Los estudiantes aplicarán todos los conocimientos adquiridos en las unidades anteriores para diseñar, desarrollar, desplegar y presentar una aplicación completa de IA automatizada, utilizando una metodología estructurada que garantice alineación con objetivos claros, sostenibilidad y impacto medible.
 
 ## 🎯 Objetivos de Aprendizaje
 
@@ -16,38 +16,69 @@ Aplicar conocimientos integrales en un proyecto completo que demuestre competenc
 - **Desplegar en producción** con monitoreo y mantenimiento
 - **Presentar resultados** a stakeholders técnicos y de negocio
 - **Documentar y comunicar** decisiones técnicas y de negocio
+- **Aplicar metodología de marco lógico** para asegurar impacto medible
+- **Gestionar stakeholders y riesgos** de manera sistemática
+
+## 🎯 Metodología de Marco Lógico
+
+El proyecto se desarrollará siguiendo los 10 pasos del marco lógico, asegurando que cada componente técnico esté alineado con objetivos claros y medibles:
+
+### 📋 Los 10 Pasos del Marco Lógico
+
+1. **Identificación del Problema** - Definir qué problema resolver con IA
+2. **Árbol de Problemas** - Descomponer en causas y efectos
+3. **Análisis de Stakeholders** - Identificar actores involucrados
+4. **Matriz de Marco Lógico** - Estructurar objetivos e indicadores
+5. **Indicadores de Éxito** - Definir métricas SMART
+6. **Fuentes de Verificación** - Establecer cómo validar indicadores
+7. **Cronograma y Recursos** - Planificar tiempos y recursos
+8. **Análisis de Riesgos** - Identificar y mitigar riesgos
+9. **Diseño Técnico** - Definir arquitectura integrada
+10. **Plan de Sostenibilidad** - Asegurar viabilidad a largo plazo
+
+### 🔗 Integración con Unidades Temáticas
+
+| Unidad Temática | Aporte al Proyecto | Fase del Marco Lógico |
+|----------------|-------------------|----------------------|
+| 1. Fundamentos de IA | Selección de algoritmos | Diseño Técnico (Paso 9) |
+| 2. Procesamiento de Datos | Limpieza y validación | Identificación (Paso 1) |
+| 3. Modelos de IA | Desarrollo y entrenamiento | Diseño Técnico (Paso 9) |
+| 4. Automatización | Pipelines de MLOps | Diseño Técnico (Paso 9) |
+| 5. Optimización | Mejora de rendimiento | Diseño Técnico (Paso 9) |
+| 6. Integración | APIs y frontend | Diseño Técnico (Paso 9) |
+| 7. Monitoreo | Métricas y alertas | Sostenibilidad (Paso 10) |
 
 ## 🏗️ Estructura del Proyecto
 
-### 📚 Fases del Proyecto
+### 📚 Fases del Proyecto (Alineadas con Marco Lógico)
 
-#### **Fase 1: Ideación y Diseño (2 semanas)**
-- Identificación del problema y stakeholders
-- Investigación de mercado y análisis de viabilidad
-- Diseño de arquitectura técnica
-- Definición de requisitos funcionales y no funcionales
-- Planificación del proyecto y milestones
+#### **Fase 1: Diseño del Proyecto con Marco Lógico (2 semanas)**
+- **Paso 1**: Identificación del Problema (Unidad 1, 7)
+- **Paso 2**: Árbol de Problemas (Unidad 2, 3)
+- **Paso 3**: Análisis de Stakeholders (Unidad 4, 6)
+- **Paso 4**: Matriz de Marco Lógico (Unidad 5, 7)
+- **Paso 9**: Diseño Técnico Integrado (Unidades 1-7)
 
 #### **Fase 2: Desarrollo del MVP (4 semanas)**
-- Implementación del pipeline de datos
-- Desarrollo y entrenamiento de modelos
-- Creación de APIs y backend
-- Desarrollo del frontend y UX
-- Integración de componentes
+- **Paso 5**: Indicadores de Éxito (Unidad 1, 7)
+- **Paso 6**: Fuentes de Verificación (Unidad 3, 7)
+- **Paso 7**: Cronograma y Recursos (Unidad 4, 5, 6)
+- Implementación de modelos (Unidad 3)
+- Desarrollo de APIs (Unidad 6)
+- Integración de componentes (Unidades 4-6)
 
 #### **Fase 3: Optimización y Despliegue (3 semanas)**
-- Optimización de modelos y pipelines
-- Implementación de monitoreo y alertas
-- Despliegue en producción
-- Testing y validación
-- Documentación técnica
+- **Paso 8**: Análisis de Riesgos (Unidades 2, 5, 7)
+- Optimización de modelos (Unidad 5)
+- Implementación de monitoreo (Unidad 7)
+- Despliegue en producción (Unidad 4)
+- Testing y validación completa
 
-#### **Fase 4: Presentación y Retroalimentación (1 semana)**
-- Preparación de presentación final
-- Demostración funcional del proyecto
-- Análisis de resultados y métricas
-- Lecciones aprendidas y mejoras futuras
-- Retroalimentación de peers e instructores
+#### **Fase 4: Sostenibilidad y Presentación (1 semana)**
+- **Paso 10**: Plan de Sostenibilidad (Unidad 4, 7)
+- Presentación de resultados
+- Análisis de impacto y lecciones aprendidas
+- Retroalimentación y mejoras futuras
 
 ## 🔧 Categorías de Proyectos
 
@@ -164,31 +195,32 @@ Aplicar conocimientos integrales en un proyecto completo que demuestre competenc
 - Plan de implementación y rollout
 - Estudio de mercado y competencia
 
-### **🎯 Criterios de Evaluación**
+### **🎯 Criterios de Evaluación (con Marco Lógico)**
+
+#### **Aplicación del Marco Lógico (20%)**
+- **Análisis del Problema**: Definición clara y justificada (Paso 1-2)
+- **Stakeholders**: Identificación completa y estrategia de involucración (Paso 3)
+- **Matriz de Objetivos**: Estructura lógica con indicadores SMART (Paso 4-5)
+- **Viabilidad**: Análisis de riesgos y plan de mitigación (Paso 8)
+- **Sostenibilidad**: Plan a largo plazo claro y realista (Paso 10)
 
 #### **Impacto y Originalidad (25%)**
-- **Relevancia del Problema**: Impacto potencial real
+- **Relevancia del Problema**: Impacto potencial real y medible
 - **Innovación Técnica**: Enfoque creativo y novedoso
-- **Viabilidad Comercial**: Potencial de mercado
-- **Sostenibilidad**: Escalabilidad y mantenimiento
+- **Viabilidad Comercial**: Potencial de mercado y ROI
+- **Alineación con ODS**: Contribución a objetivos de desarrollo sostenible
 
 #### **Calidad Técnica (35%)**
-- **Arquitectura**: Diseño robusto y escalable
-- **Implementación**: Código limpio y eficiente
+- **Arquitectura**: Diseño robusto y escalable (Paso 9)
+- **Implementación**: Código limpio y eficiente (Unidades 3-6)
 - **Testing**: Calidad y cobertura de tests
 - **Performance**: Latencia y throughput adecuados
 
-#### **Funcionalidad Completa (25%)**
+#### **Funcionalidad Completa (20%)**
 - **End-to-End**: Flujo completo funcional
 - **UX/UI**: Interfaz intuitiva y atractiva
 - **Integración**: Componentes bien integrados
-- **Robustez**: Manejo de errores y casos edge
-
-#### **Presentación y Comunicación (15%)**
-- **Demo Funcional**: Presentación clara del proyecto
-- **Análisis de Resultados**: Métricas y aprendizajes
-- **Documentación**: Completa y profesional
-- **Retroalimentación**: Respuesta constructiva a feedback
+- **Monitoreo**: Métricas y alertas implementadas (Unidad 7)
 
 ## 🚀 Ejemplos de Proyectos Exitosos
 
@@ -260,7 +292,15 @@ Aplicar conocimientos integrales en un proyecto completo que demuestre competenc
 - [ ] Lecciones aprendidas
 - [ ] Entrega final
 
-## 🎯 Deliverables Finales
+## 🎯 Deliverables Finales (con Marco Lógico)
+
+### **📋 Documentos del Marco Lógico**
+- **Documento de Identificación del Problema** (Paso 1-2)
+- **Matriz de Stakeholders** (Paso 3)
+- **Matriz de Marco Lógico Completa** (Paso 4-5)
+- **Plan de Monitoreo y Evaluación** (Paso 6)
+- **Análisis de Riesgos y Mitigación** (Paso 8)
+- **Plan de Sostenibilidad** (Paso 10)
 
 ### **📁 Código y Repositorio**
 - Repositorio GitHub completo y organizado
@@ -270,8 +310,8 @@ Aplicar conocimientos integrales en un proyecto completo que demuestre competenc
 - README completo con instrucciones
 
 ### **📊 Documentación Técnica**
-- Arquitectura del sistema
-- API documentation
+- Arquitectura del sistema (Paso 9)
+- API documentation con OpenAPI/Swagger
 - Guía de despliegue y uso
 - Análisis de rendimiento
 - Plan de mantenimiento
@@ -281,16 +321,39 @@ Aplicar conocimientos integrales en un proyecto completo que demuestre competenc
 - Slides de presentación (15-20 minutos)
 - Dashboard en vivo del proyecto
 - Análisis de métricas y KPIs
-- Lecciones aprendidas y futuro
+- Lecciones aprendidas
 
-### **📈 Reporte de Proyecto**
+### 📚 Estructura de la Unidad
+
+#### **01-Guía**
+- Guía conceptual del proyecto integrador
+- Metodología de marco lógico aplicada
+- Integración con unidades temáticas
+
+#### **02-Laboratorios**
+- Laboratorios prácticos del proyecto
+- **Plantillas**: 10 plantillas detalladas del marco lógico
+- Ejercicios integrados con unidades previas
+
+#### **03-Recursos**
+- Recursos adicionales y referencias
+- Herramientas y software recomendado
+
+#### **04-Buenas Prácticas**
+- Mejores prácticas en proyectos de IA
+- Estándares de calidad y documentación
+
+#### **05-Guía-Conceptual-Adicional** 
+- Guía conceptual extendida del marco lógico
+- Detalle paso a paso de la metodología
+- Flujo de trabajo integrado
+
+### **📈 Reporte de Proyecto Integral**
 - Executive summary para stakeholders
 - Análisis técnico detallado
-- Métricas de éxito y resultados
+- Métricas de éxito y resultados del marco lógico
 - Análisis de viabilidad comercial
 - Recomendaciones y próximos pasos
-
----
 
 ## 📞 Soporte y Contacto
 
