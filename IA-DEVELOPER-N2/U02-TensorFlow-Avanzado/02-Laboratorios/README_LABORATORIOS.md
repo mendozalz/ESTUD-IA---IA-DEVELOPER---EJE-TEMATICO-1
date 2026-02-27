@@ -1,105 +1,178 @@
 # U02 - Laboratorios de TensorFlow Avanzado
 
-## Estructura de Laboratorios
+## 📋 Visión General
 
-### 🚀 Laboratorio 1 - Ejercicios Prácticos Avanzados
-- **Carpeta:** `Laboratorio 1 - Ejercicios Prácticos Avanzados/`
-- **Archivos:** 5 ejercicios completos con README y código funcional
-- **Técnicas:** tf.data, Series Temporales, Grafos con Spektral, Atención Personalizada, GAT personalizado
-- **Objetivo:** Implementar soluciones empresariales avanzadas con TensorFlow
+Los laboratorios de la Unidad 2 están diseñados para dominar los conceptos avanzados de TensorFlow mediante ejercicios prácticos que cubren desde las operaciones básicas hasta implementaciones complejas de deep learning. Cada laboratorio se enfoca en aspectos específicos del framework TensorFlow para construir una base sólida y profesional.
 
-#### Ejercicios del Laboratorio 1:
-1. **🏭 Carga de Imágenes con tf.data** - Detección de defectos en PCB
-2. **⚡ Series Temporales con Ventanas Deslizantes** - Predicción de consumo energético
-3. **🕸️ Datos de Grafos con Spektral** - Detección de fraudes bancarios
-4. **📝 Atención Personalizada para Texto** - Análisis de sentimientos
-5. **🗺️ Grafos Personalizados para Logística** - Optimización de rutas
+## 🎯 Metodología de Marco Lógico
 
-### 🧠 Laboratorio 2 - Tipos de Redes Neuronales
-- **Carpeta:** `Laboratorio 2 - Tipos de Redes Neuronales/`
-- **Archivos:** `teoria_redes_neuronales.py`, `ejemplos_supervisado.py`, `ejemplos_no_supervisados.py`, `ejemplos_reforzado.py`, `comparacion_redes.py`
-- **Técnicas:** 12 tipos de redes neuronales (Dense, CNN, RNN, LSTM, GRU, Autoencoder, GAN, GNN, Transformer, ResNet, U-Net, DQN)
-- **Objetivo:** Explorar teórica y prácticamente los principales tipos de redes neuronales
+Cada laboratorio sigue la metodología del marco lógico para garantizar:
 
-#### Metodología del Laboratorio 2:
-**Teoría y Características**
-- Explicación detallada de 12 tipos de redes neuronales
-- Características, composición y componentes
-- Librerías recomendadas y aplicaciones
+- **Claridad de objetivos** y resultados esperados
+- **Medición sistemática** del progreso
+- **Verificación objetiva** de logros
+- **Identificación de supuestos críticos**
 
-**Implementación Práctica**
-- 3 ejemplos de aprendizaje supervisado (Dense, CNN, LSTM)
-- 3 ejemplos de aprendizaje no supervisado (Autoencoder, GAN, Transformer)
-- 3 ejemplos de aprendizaje por refuerzo (DQN, Policy Gradient, Actor-Critic)
+## 🏗️ Estructura de Laboratorios
 
-**Análisis Comparativo**
-- Comparación de rendimiento y eficiencia
-- Recomendaciones por caso de uso
-- Ventajas y desventajas de cada tipo
+### **Lab-2.1-TF-Exercises**
+- **Objetivo**: Dominar operaciones avanzadas de TensorFlow
+- **Contenido**: Ejercicios prácticos de TensorFlow
+- **Técnicas**: Operaciones tensoriales, gradientes, optimización
+- **Duración estimada**: 4-6 horas
 
-### 🧪 Laboratorio 3 - Redes Neuronales Individuales
-- **Carpeta:** `Laboratorio 3 - Redes Neuronales Individuales/`
-- **Archivos:** 12 redes neuronales individuales con código completo
-- **Técnicas:** Implementación detallada de cada tipo de red neuronal
-- **Objetivo:** Profundizar en cada arquitectura neuronal específica
+## 📊 Contenido Detallado
 
-### 📚 Laboratorio 4 - Redes Neuronales Detalladas
-- **Carpeta:** `Laboratorio 4 - Redes Neuronales Detalladas/`
-- **Archivos:** Documentación extendida y análisis profundo
-- **Técnicas:** Análisis teórico avanzado
-- **Objetivo:** Comprender en profundidad los fundamentos matemáticos y conceptuales
+### **Lab-2.1-TF-Exercises**
 
-## Instalación de Dependencias
+#### **Ejercicio 1: Operaciones Básicas con Tensores**
+- **Objetivo**: Comprender la manipulación de tensores
+- **Tareas**: Creación, indexación, operaciones matemáticas
+- **Archivo**: `1-basic_operations.py`
 
+#### **Ejercicio 2: GradientTape y Diferenciación Automática**
+- **Objetivo**: Dominar el cálculo automático de gradientes
+- **Tareas**: Implementación de backpropagation manual
+- **Archivo**: `2-gradient_tape.py`
+
+#### **Ejercicio 3: Construcción de Modelos con Keras**
+- **Objetivo**: Crear modelos secuenciales y funcionales
+- **Tareas**: Arquitecturas complejas, capas personalizadas
+- **Archivo**: `3-keras_models.py`
+
+#### **Ejercicio 4: Entrenamiento y Optimización**
+- **Objetivo**: Implementar ciclos de entrenamiento personalizados
+- **Tareas**: Optimizadores, métricas, callbacks
+- **Archivo**: `4-training_optimization.py`
+
+#### **Ejercicio 5: TensorFlow Data API**
+- **Objetivo**: Dominar pipelines de datos eficientes
+- **Tareas**: Datasets, prefetch, cache, batch
+- **Archivo**: `5-data_pipeline.py`
+
+#### **Ejercicio 6: Modelos Personalizados**
+- **Objetivo**: Crear capas y modelos personalizados
+- **Tareas**: Herencia de clases, implementación de forward pass
+- **Archivo**: `6-custom_models.py`
+
+#### **Ejercicio 7: Distribución y Paralelismo**
+- **Objetivo**: Implementar entrenamiento distribuido
+- **Tareas**: MirroredStrategy, TPUStrategy
+- **Archivo**: `7-distributed_training.py`
+
+#### **Ejercicio 8: Exportación y Despliegue**
+- **Objetivo**: Convertir y desplegar modelos
+- **Tareas**: TensorFlow Lite, TensorFlow Serving
+- **Archivo**: `8-deployment.py`
+
+## 🔧 Requisitos Técnicos
+
+### **Software Requerido**
+- Python 3.8+
+- TensorFlow 2.12+
+- Jupyter Notebook
+- Git
+
+### **Hardware Recomendado**
+- CPU: 4+ cores
+- RAM: 8GB+ (16GB recomendado)
+- GPU: NVIDIA con CUDA (opcional pero recomendado)
+- Almacenamiento: 10GB disponibles
+
+### **Dependencias Principales**
 ```bash
-pip install -r requirements.txt
+pip install tensorflow==2.12.0
+pip install jupyter==1.0.0
+pip install matplotlib==3.6.0
+pip install numpy==1.24.0
+pip install pandas==2.0.0
 ```
 
-## Ejecución
+## 📈 Secuencia de Aprendizaje
 
-```bash
-# Laboratorio 1 - Ejercicios Prácticos Avanzados
-cd "Laboratorio 1 - Ejercicios Prácticos Avanzados"
-cd "01-Carga-Imagenes-tfdata"
-python ejercicio_completo.py
+### **Fase 1: Fundamentos (Ejercicios 1-2)**
+- Comprensión de tensores y operaciones básicas
+- Dominio del cálculo automático de gradientes
+- **Tiempo estimado**: 2 horas
 
-cd "../02-Series-Temporales-Ventanas"
-python ejercicio_completo.py
+### **Fase 2: Construcción de Modelos (Ejercicios 3-4)**
+- Arquitecturas con Keras
+- Entrenamiento personalizado
+- **Tiempo estimado**: 2 horas
 
-cd "../03-Datos-Grafos-Spektral"
-python ejercicio_completo.py
+### **Fase 3: Datos y Optimización (Ejercicios 5-6)**
+- Pipelines de datos eficientes
+- Modelos y capas personalizadas
+- **Tiempo estimado**: 1.5 horas
 
-cd "../04-Atencion-Personalizada-Texto"
-python ejercicio_completo.py
+### **Fase 4: Producción (Ejercicios 7-8)**
+- Entrenamiento distribuido
+- Despliegue de modelos
+- **Tiempo estimado**: 1.5 horas
 
-cd "../05-Grafos-Personalizados-Logistica"
-python ejercicio_completo.py
+## 🎯 Criterios de Evaluación
 
-# Laboratorio 2
-cd "../../Laboratorio 2 - Tipos de Redes Neuronales"
-python teoria_redes_neuronales.py
-python ejemplos_supervisado.py
-python ejemplos_no_supervisados.py
-python ejemplos_reforzado.py
-python comparacion_redes.py
+### **Comprensión Teórica (30%)**
+- Explicación clara de conceptos de TensorFlow
+- Justificación de decisiones técnicas
+- Comprensión de arquitecturas
 
-# Laboratorio 3
-cd "../Laboratorio 3 - Redes Neuronales Individuales"
-# Ejecutar cada red neuronal individualmente
-cd "01-Red-Densa"
-python ejemplo_basico.py
+### **Implementación Práctica (50%)**
+- Código funcional y bien estructurado
+- Uso correcto de APIs de TensorFlow
+- Optimización de rendimiento
 
-cd "../02-Red-CNN"
-python ejemplo_basico.py
+### **Resultados y Métricas (20%)**
+- Modelos que entrenan correctamente
+- Métricas de rendimiento aceptables
+- Visualizaciones claras de resultados
 
-# ... y así sucesivamente para las 12 redes
+## 📚 Recursos Adicionales
 
-# Laboratorio 4
-cd "../Laboratorio 4 - Redes Neuronales Detalladas"
-# Revisar documentación extendida
-cat README.md
-```
+### **Documentación Oficial**
+- [TensorFlow Documentation](https://www.tensorflow.org/guide)
+- [Keras API Reference](https://keras.io/api/)
+- [TensorFlow Tutorials](https://www.tensorflow.org/tutorials)
 
-## Entregables
+### **Recursos de Aprendizaje**
+- Videos de introducción a TensorFlow
+- Artículos sobre mejores prácticas
+- Ejemplos de código adicionales
 
-Consultar el README específico de cada laboratorio para detalles de entregables y conceptos a observar.
+### **Herramientas Útiles**
+- TensorBoard para visualización
+- TensorFlow Profiler para optimización
+- Colab para experimentación rápida
+
+## 🚀 Tips para el Éxito
+
+### **Antes de Empezar**
+- Revisar conceptos básicos de Python
+- Entender fundamentos de álgebra lineal
+- Configurar entorno de desarrollo
+
+### **Durante los Ejercicios**
+- Experimentar con diferentes parámetros
+- Documentar el código con comentarios
+- Usar TensorBoard para visualizar
+
+### **Para Profundizar**
+- Explorar casos de uso reales
+- Participar en la comunidad TensorFlow
+- Contribuir a proyectos open source
+
+## 📞 Soporte y Ayuda
+
+### **Recursos Internos**
+- Foros de discusión del curso
+- Sesiones de tutoría
+- Revisión de código por pares
+
+### **Recursos Externos**
+- Stack Overflow
+- TensorFlow Community
+- GitHub Issues
+
+---
+
+**¡Estos laboratorios te proporcionarán una base sólida en TensorFlow avanzado para proyectos profesionales de IA!**

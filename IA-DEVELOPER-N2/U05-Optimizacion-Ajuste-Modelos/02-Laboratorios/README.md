@@ -15,10 +15,16 @@ Cada laboratorio sigue la metodología del marco lógico para garantizar:
 
 ## 🏗️ Estructura de Laboratorios
 
-### **Laboratorio 1: Pruning y Cuantización de Modelos**
+### **Lab-5.1-Opt-Hyperparam: Optimización de Hiperparámetros**
+**Objetivo Principal**: Optimizar hiperparámetros usando Optuna para datasets médicos
+
+### **Lab-5.2-Opt-Fraud-Detection: Optimización para Detección de Fraude**
+**Objetivo Principal**: Optimizar modelos para detección de fraude con datos sintéticos
+
+### **Lab-5.3-Opt-Mod-Pruning-Quant: Pruning y Cuantización de Modelos**
 **Objetivo Principal**: Reducir tamaño y mejorar velocidad de modelos mediante pruning y cuantización
 
-#### **Marco Lógico - Laboratorio 1**
+#### **Marco Lógico - Lab-5.3**
 
 | Nivel | Objetivo | Indicadores | Verificación | Supuestos |
 |-------|-----------|-------------|--------------|-----------|
@@ -46,6 +52,9 @@ Cada laboratorio sigue la metodología del marco lógico para garantizar:
 - **Optimizar modelos** para diferentes plataformas
 - **Medir impacto** en rendimiento y recursos
 - **Crear sistemas** de optimización automatizados
+
+### **Lab-5.4-NAS-AutoKeras: Neural Architecture Search**
+**Objetivo Principal**: Automatizar búsqueda de arquitecturas usando AutoKeras
 
 ---
 
