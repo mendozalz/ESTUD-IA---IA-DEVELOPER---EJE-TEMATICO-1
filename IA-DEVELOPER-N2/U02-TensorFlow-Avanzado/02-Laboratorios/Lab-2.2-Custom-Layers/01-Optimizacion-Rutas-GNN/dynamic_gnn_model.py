@@ -13,7 +13,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from typing import Tuple, Dict, List, Optional
 
-class DynamicGATLayer(sp.layers.GraphBase):
+class DynamicGATLayer(tf.keras.layers.Layer):
     """
     Capa de Graph Attention Network personalizada para manejar grafos dinámicos
     con atributos variables en el tiempo (tráfico, clima, etc.)
@@ -463,11 +463,11 @@ def main():
     """
     Función principal para ejecutar el caso de uso completo
     """
-    print("🚚 CASO DE USO 1: OPTIMIZACIÓN DE RUTAS CON GNNS")
+    print("CASO DE USO 1: OPTIMIZACION DE RUTAS CON GNNS")
     print("=" * 70)
     
     # 1. Crear modelo
-    print("\n🏗️ Construyendo modelo GNN dinámico...")
+    print("\nConstruyendo modelo GNN dinamico...")
     model = TemporalGNNModel(
         node_features=8,
         edge_features=4,

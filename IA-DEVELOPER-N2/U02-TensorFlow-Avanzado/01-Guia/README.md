@@ -1,35 +1,208 @@
-# U02 - Programación avanzada con TensorFlow
+# U02 - Programación Avanzada con TensorFlow
 
-## Descripción breve
+## 📖 Descripción General
 
-Construcción de modelos con TensorFlow/Keras a nivel avanzado: capas personalizadas, `tf.data`, callbacks, manejo de datasets complejos, y despliegue en producción para estudiantes de maestría.
+Esta unidad profundiza en los fundamentos teóricos y conceptuales de TensorFlow como framework de deep learning, explorando desde la arquitectura interna del framework hasta las técnicas avanzadas de optimización, despliegue e integración con sistemas empresariales. El enfoque es comprender el "porqué" detrás de cada técnica y su aplicación en escenarios reales de producción.
 
-## Objetivos de aprendizaje específicos
+## 🎯 Objetivos de Aprendizaje Teóricos
 
-- Desarrollar modelos de IA para automatizar procesos empresariales.
-- Implementar modelos con capas personalizadas y/o subclases (`tf.keras.Model`).
-- Preparar pipelines de entrada eficientes con `tf.data` para entrenamiento escalable.
-- Aplicar técnicas avanzadas de optimización y despliegue en producción.
-- Integrar modelos con sistemas empresariales (APIs, bases de datos, IoT).
+### **Comprensión Profunda del Framework**
+- **Arquitectura de TensorFlow**: Entender grafo computacional, eager execution, autógrafos
+- **Sistema de Tipos**: Dominar tf.Tensor, tf.Variable, y sus operaciones
+- **Memory Management**: Gestión de memoria GPU/CPU, optimización de recursos
 
-## Temas clave a cubrir
+### **Diseño Avanzado de Modelos**
+- **API Funcional vs Subclases**: Cuándo y por qué usar cada enfoque
+- **Capas Personalizadas**: Teoría detrás de implementación de layers custom
+- **Mecanismos de Attention**: Fundamentos matemáticos y implementación
 
-- API funcional vs. subclases, composición de modelos.
-- `tf.data`: lectura, transformaciones, `batch`, `prefetch`.
-- Capas personalizadas: implementación y serialización.
-- Callbacks: EarlyStopping, ModelCheckpoint, TensorBoard.
-- Optimización: Keras Tuner, mixed precision, entrenamiento distribuido.
-- Exportación de modelos (SavedModel, TensorFlow Lite) para inferencia.
-- Despliegue: TensorFlow Serving, FastAPI, Docker.
+### **Optimización y Performance**
+- **Teoría de Optimización**: Convergencia, learning rates, momentum
+- **Parallel Computing**: Data/model/pipeline parallelism
+- **Mixed Precision**: Teoría de computación de punto flotante
 
-## Lecciones sugeridas
+## 📚 Contenido Teórico Avanzado
 
-- Lección 1: Arquitecturas con Keras (multi-input, multi-output).
-- Lección 2: `tf.data` para imágenes/texto/tabular.
-- Lección 3: Capas/métricas personalizadas.
-- Lección 4: Optimización y búsqueda de hiperparámetros.
-- Lección 5: Despliegue y producción.
-- Lección 6: Integración con sistemas empresariales.
+### **Módulo 1: Fundamentos Internos de TensorFlow**
+
+#### **1.1 Arquitectura del Grafo Computacional**
+- **Computational Graphs**: Teoría de grafos en deep learning
+- **Eager vs Graph Execution**: Trade-offs de performance y flexibilidad
+- **Autógrafos**: tf.function y sus implicaciones de performance
+- **GradientTape**: Teoría del cálculo automático de gradientes
+
+#### **1.2 Sistema de Tipos y Operaciones**
+- **Tensor Types**: Dense, sparse, ragged tensors - teoría y aplicaciones
+- **Operaciones Tensoriales**: Broadcasting, slicing, advanced indexing
+- **Memory Layout**: Row-major vs column-major, implicaciones de cache
+
+#### **1.3 Device Management**
+- **GPU Computing**: Arquitectura CUDA, kernels, memory hierarchy
+- **TPU Architecture**: Matrix units, systolic arrays
+- **Distributed Computing**: Parameter server vs all-reduce
+
+### **Módulo 2: Arquitecturas Avanzadas de Modelos**
+
+#### **2.1 API Funcional Profunda**
+- **Model Composition**: Teoría de composición de funciones
+- **Multiple Inputs/Outputs**: Arquitecturas multi-task learning
+- **Shared Layers**: Transfer learning teórico
+- **Residual Connections**: Teoría de gradient flow
+
+#### **2.2 Subclases y Capas Personalizadas**
+- **Layer Theory**: Forward/backward pass, state management
+- **Custom Metrics**: Teoría de evaluación diferenciable
+- **Custom Loss Functions**: Diseño de funciones de pérdida
+- **Weight Initialization**: Teoría de inicialización (Xavier, He)
+
+#### **2.3 Mecanismos de Attention**
+- **Scaled Dot-Product Attention**: Fundamentos matemáticos
+- **Multi-Head Attention**: Paralelización y representación
+- **Self-Attention**: Teoría de representación contextual
+- **Cross-Attention**: Aplicaciones en seq2seq
+
+### **Módulo 3: Data Pipeline Avanzado**
+
+#### **3.1 tf.data Profundo**
+- **Pipeline Theory**: Prefetching, parallelism, caching
+- **Data Augmentation**: Teoría de regularización por augmentación
+- **Window Operations**: Series temporales y secuencias
+- **Interoperability**: NumPy, Pandas, Apache Arrow
+
+#### **3.2 Manejo de Datos Complejos**
+- **Structured Data**: Feature columns, embeddings categóricos
+- **Image Processing**: Convoluciones, augmentations, preprocessing
+- **Text Processing**: Tokenization, embeddings, masking
+- **Time Series**: Windowing, forecasting, anomaly detection
+
+### **Módulo 4: Optimización y Training Avanzado**
+
+#### **4.1 Teoría de Optimización**
+- **Convex Optimization**: Fundamentos matemáticos
+- **Non-Convex Optimization**: Landscape, saddle points
+- **Adaptive Methods**: Adam, RMSprop - análisis teórico
+- **Learning Rate Scheduling**: Cyclical, warmup, decay
+
+#### **4.2 Regularización Avanzada**
+- **Dropout Theory**: Approximate model averaging
+- **Batch Normalization**: Internal covariate shift
+- **Weight Decay**: L2 regularization en deep learning
+- **Early Stopping**: Generalization bounds
+
+#### **4.3 Distributed Training**
+- **Data Parallelism**: Synchronous vs asynchronous
+- **Model Parallelism**: Pipeline parallelism, model sharding
+- **Gradient Compression**: Sparsification, quantization
+- **Fault Tolerance**: Checkpointing, recovery
+
+### **Módulo 5: Despliegue y Producción**
+
+#### **5.1 Model Serving**
+- **SavedModel Format**: Protocol buffers, signatures
+- **TensorFlow Serving**: gRPC, REST APIs
+- **Model Versioning**: A/B testing, canary deployments
+- **Monitoring**: Performance metrics, drift detection
+
+#### **5.2 Optimización para Inferencia**
+- **TensorFlow Lite**: Quantization, pruning, delegate kernels
+- **TensorFlow.js**: WebGL acceleration, browser optimization
+- **ONNX Conversion**: Cross-framework compatibility
+- **Edge Computing**: Mobile, embedded systems
+
+#### **5.3 Integración Empresarial**
+- **API Design**: REST vs GraphQL, streaming
+- **Database Integration**: Feature stores, model registries
+- **CI/CD for ML**: Automated testing, deployment pipelines
+- **Security**: Model encryption, access control
+
+## 🔬 Casos de Estudio Teóricos
+
+### **Caso 1: Sistema de Recomendación a Gran Escala**
+- **Two-Tower Architecture**: User/item embeddings
+- **Negative Sampling**: Sampling strategies para implicit feedback
+- **Real-time Inference**: Serving architecture
+- **Cold Start Problem**: Métodos teóricos de solución
+
+### **Caso 2: Procesamiento de Lenguaje Natural**
+- **Transformer Architecture**: Self-attention mechanisms
+- **Pre-training Objectives**: MLM, NSP, contrastive learning
+- **Fine-tuning Strategies**: Adapter layers, prompt tuning
+- **Multilingual Models**: Cross-lingual transfer learning
+
+### **Caso 3: Computer Vision Avanzado**
+- **Object Detection**: Anchor boxes, NMS, focal loss
+- **Segmentation**: UNet, Mask R-CNN architectures
+- **Video Analysis**: 3D convolutions, optical flow
+- **Self-Supervised Learning**: Contrastive learning, BYOL
+
+## 🏗️ Arquitectura de Sistemas TensorFlow
+
+### **Design Patterns**
+- **Model Registry**: Version control para modelos
+- **Feature Store**: Centralized feature management
+- **Experiment Tracking**: Reproducibility y comparación
+- **Pipeline Orchestration**: Airflow, Kubeflow, Prefect
+
+### **Performance Optimization**
+- **Memory Profiling**: tf.profiler, memory leaks
+- **GPU Utilization**: Kernel optimization, memory bandwidth
+- **Latency Optimization**: Batching, model parallelism
+- **Throughput Optimization**: Pipeline parallelism, async processing
+
+## 📊 Métricas y Evaluación Teórica
+
+### **Training Metrics**
+- **Convergence Analysis**: Loss landscape, gradient norms
+- **Generalization Gap**: Train/test performance analysis
+- **Training Stability**: Gradient explosion/vanishing
+- **Resource Utilization**: GPU memory, compute efficiency
+
+### **Inference Metrics**
+- **Latency Analysis**: P50, P95, P99 latencies
+- **Throughput**: QPS, batch size optimization
+- **Accuracy-Precision Trade-offs**: Quantization effects
+- **Cost Analysis**: Compute costs, infrastructure costs
+
+## 🎓 Evaluación del Aprendizaje Avanzado
+
+### **Evaluación Teórica (40%)**
+- **Análisis de Arquitecturas**: Comparación teórica de approaches
+- **Optimization Analysis**: Convergencia y performance
+- **Paper Critiques**: Análisis crítico de research papers
+- **Mathematical Proofs**: Demostraciones de conceptos clave
+
+### **Diseño de Sistemas (30%)**
+- **System Architecture**: Diseño de sistemas completos
+- **Performance Analysis**: Predicción teórica de performance
+- **Scalability Design**: Diseño para grandes volúmenes
+- **Integration Planning**: Planificación de integración empresarial
+
+### **Implementación Avanzada (30%)**
+- **Custom Layers**: Implementación de layers complejos
+- **Optimization Experiments**: Comparación de optimizadores
+- **Deployment Strategies**: Estrategias de despliegue
+- **Performance Tuning**: Optimización de sistemas
+
+## 📚 Recursos Teóricos Avanzados
+
+### **Libros Especializados**
+- **Deep Learning with TensorFlow** - A. Geron
+- **Hands-On Machine Learning** - A. Geron
+- **TensorFlow for Deep Learning** - B. Zhu
+
+### **Papers Fundamentales**
+- **Adam: A Method for Stochastic Optimization** - Kingma & Ba
+- **Batch Normalization** - Ioffe & Szegedy
+- **Attention Is All You Need** - Vaswani et al.
+
+### **Documentación Técnica**
+- **TensorFlow White Papers** - Google Research
+- **XLA: Accelerated Linear Algebra** - TensorFlow compiler
+- **TensorFlow Extended (TFX)** - Production ML platform
+
+---
+
+**Esta unidad proporciona el conocimiento teórico avanzado necesario para dominar TensorFlow en producción.**
 
 ## Programación Avanzada con TensorFlow: Construcción de Modelos con Capas Personalizadas y Manejo de Datasets Complejos
 
