@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# TensorFlow
+*.h5
+*.hdf5
+*.pb
+*.ckpt
+checkpoints/
+
+# Datos generados
+data/synthetic/
+data/processed/
+data/cache/
+
+# Logs y resultados
+logs/
+results/
+outputs/
+
+# Visualizaciones
+*.png
+*.jpg
+*.jpeg
+notebooks/*.png
+notebooks/*.jpg
+
+# Modelos entrenados
+models/*.pkl
+models/*.joblib
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Configuración local
+.env
+.env.local
+config.local.*
