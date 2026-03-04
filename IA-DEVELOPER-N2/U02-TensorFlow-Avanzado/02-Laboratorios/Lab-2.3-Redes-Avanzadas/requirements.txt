@@ -1,0 +1,81 @@
+# Laboratorio 2.3: Redes Neuronales Avanzadas y Aplicaciones Prácticas
+# Dependencias para los tres proyectos integradores
+
+# Core ML/DL Frameworks
+tensorflow>=2.16.0
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# Computer Vision
+opencv-python>=4.8.0
+pillow>=10.0.0
+scikit-image>=0.21.0
+
+# Natural Language Processing
+transformers>=4.30.0
+tokenizers>=0.13.0
+nltk>=3.8.0
+
+# Graph Neural Networks
+spektral>=1.2.0
+torch-geometric>=2.3.0
+networkx>=3.1.0
+
+# Data Processing
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+joblib>=1.3.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.14.0
+
+# API and Deployment
+fastapi>=0.100.0
+uvicorn>=0.22.0
+pydantic>=2.0.0
+
+# Image Processing and Augmentation
+albumentations>=1.3.0
+imgaug>=0.4.0
+
+# Utilities
+tqdm>=4.65.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Jupyter Notebooks
+jupyter>=1.0.0
+ipywidgets>=8.0.0
+
+# Development and Testing
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Optional: For specific advanced models
+# GANs
+tensorflow-gan>=2.0.0
+
+# Memory Networks
+memory-networks>=1.0.0
+
+# Capsule Networks (if available)
+# capsule-layer>=1.0.0
+
+# Diffusion Models
+diffusers>=0.18.0
+
+# Spiking Neural Networks
+nengo>=3.1.0
+
+# Neuro-Symbolic
+pyke>=1.1.1
+
+# Additional utilities
+h5py>=3.9.0
+tables>=3.8.0
+scipy>=1.11.0
